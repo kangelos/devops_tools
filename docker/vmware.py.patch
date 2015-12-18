@@ -1,0 +1,63 @@
+*** /usr/lib/python2.6/site-packages/salt/cloud/clouds/vmware.py.old 2015-12-15 11:47:05.703214983 +0000
+--- /usr/lib/python2.6/site-packages/salt/cloud/clouds/vmware.py 2015-12-15 12:56:18.067154711 +0000
+***************
+*** 67,72 ****
+--- 67,73 ----
+ import time
+ import os.path
+ import subprocess
++ import re
+ 
+ # Import salt libs
+ import salt.utils
+***************
+*** 197,202 ****
+--- 198,212 ----
+ port = config.get_cloud_config_value(
+ 'port', get_configured_provider(), __opts__, search_global=False, default=443
+ )
++ ext_auth_method = config.get_cloud_config_value(
++ 'password_program', get_configured_provider(), __opts__, search_global=False, default=''
++ )
++ pw_store = config.get_cloud_config_value(
++ 'pw_store', get_configured_provider(), __opts__, search_global=False, default='/opt/passdb'
++ )
++ 
++ if ext_auth_method=='pass':
++ password=_get_pw_from_pass(username,pw_store)
+ 
+ return salt.utils.vmware.get_service_instance(url,
+ username,
+***************
+*** 3569,3571 ****
+--- 3579,3605 ----
+ return False
+ 
+ return {datastore_cluster_name: 'created'}
++ 
++ 
++ 
++ def _get_pw_from_pass(pw_name, pw_store):
++     '''
++     Get a password, from pass utility ( GPG must be active) remember to patch pass with gpg secret
++     '''
++     my_env = os.environ
++     my_env["PASSWORD_STORE_DIR"] = pw_store
++ 
++     # synchonize first
++     devnull = open(os.devnull, 'w')
++     subprocess.call(['/usr/bin/pass','git', 'pull'],env=my_env,cwd=pw_store,stdout=devnull, stderr=devnull)
++ 
++     pw_file = '{0}/{1}.gpg'.format(pw_store, pw_name)
++     log.info("trying to get pass from '{0}'".format(pw_file))
++     if os.path.isfile(pw_file):
++         log.info("trying to get pass for '{0}'".format(pw_name))
++         proc = subprocess.Popen(["/usr/bin/pass",  pw_name], env=my_env,cwd=pw_store,stdout=subprocess.PIPE)
++         pass_plaintext = proc.stdout.readline().rstrip()
++         return pass_plaintext
++     else:
++         log.info("GPGed password file not found '{0}'".format(pw_file))
++ 
++     return 'Pass Not Found'
++ 
+
