@@ -7,7 +7,7 @@
 
 There are literally thousands of ways for a saltstack  script to go awry! One simple way to test these scripts is to create a single salt-master many salt-minions autmated testing rig.
 
-In the subdir you nca find the build script as well as the master and minion CMD scripts
+In the subdir you can find the build script as well as the master and minion CMD scripts
 
 ### encrypted vsphere credentials
 
