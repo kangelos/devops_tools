@@ -1,0 +1,56 @@
+#  Original from
+# https://github.com/tech22info/PowerDNS-autoincrement-SOA-serial-db-schema/blob/master/DbSchemaWithTriggers.sql
+#
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+SET search_path = public, pg_catalog;
+
+DROP function "IncDomainSerial";
+CREATE FUNCTION "IncDomainSerial"(domid integer) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $_$DECLARE
+  soacursor CURSOR FOR SELECT id,content FROM records WHERE domain_id=$1 AND type='SOA' LIMIT 1;
+  soarecid int;
+  res_soaserial varchar;
+  soacontent varchar;
+  res_soacontent varchar;
+  res_soarefresh varchar;
+  res_soaretry varchar;
+  res_soaexpire varchar;
+  res_soattl varchar;
+BEGIN
+   OPEN soacursor;
+   FETCH FIRST FROM soacursor INTO soarecid,soacontent;
+   CLOSE soacursor;
+   res_soacontent=split_part(soacontent,' ', 1) || ' ' ||split_part(soacontent,' ', 2);
+   res_soaserial=int4(split_part(soacontent,' ', 3))+1;
+   res_soarefresh=int4(split_part(soacontent,' ', 4));
+   res_soaretry=int4(split_part(soacontent,' ', 5));
+   res_soaexpire=int4(split_part(soacontent,' ', 6));
+   res_soattl=int4(split_part(soacontent,' ', 7));
+   UPDATE records SET content=res_soacontent || ' ' || res_soaserial || ' ' || res_soarefresh  || ' ' || res_soaretry || ' ' || res_soaexpire  || ' ' || res_soattl   WHERE id=soarecid;
+   RETURN res_soaserial;
+END;
+$_$;
+
+CREATE FUNCTION serialupdateondatachange() RETURNS trigger
+    LANGUAGE plpgsql
+AS $$BEGIN
+
+IF (TG_OP = 'INSERT') OR (TG_OP = 'UPDATE') THEN
+    IF NEW.type != 'SOA' THEN
+        PERFORM "IncDomainSerial"(NEW.domain_id);
+        END IF;
+        RETURN NEW;
+END IF;
+
+IF (TG_OP = 'DELETE') THEN
+        PERFORM "IncDomainSerial"(OLD.domain_id);
+        RETURN OLD;
+END IF;
+END;
+$$;
+
+
+CREATE TRIGGER "UpdateSerial" BEFORE INSERT OR DELETE OR UPDATE ON records FOR EACH ROW EXECUTE PROCEDURE serialupdateondatachange();
+
