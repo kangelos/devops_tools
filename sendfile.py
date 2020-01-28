@@ -28,7 +28,7 @@ from kuyruk import Kuyruk
 import config
 
 logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-logger = logging.getLogger("task_dispatcher")
+logger = logging.getLogger("filesender")
 
 
 def taskify(function):
@@ -58,17 +58,9 @@ def taskify(function):
             return function(fn)
 
     return decorate
-
-# fill in your kuyruk config here
-config = readconfig("/etc/kuyruk.ini", "tasks")
-
-if config is None:
-    logger.error("cannot read inifile or section")
-    exit(1)
     
-# now we are cooking
-kuyruk = Kuyruk(config)
 
+kuyruk = Kuyruk(config)
 # taskify is our own conditional decorator
 @taskify(kuyruk.task(socket.gethostname()))
 def sendfile(filename, contents):
