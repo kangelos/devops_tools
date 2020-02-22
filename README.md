@@ -10,3 +10,4 @@ You got the code , read it
 *	holdSundays.bash 	bash script to place a hold on ZFS snapshots on Sundays
 *	powerdns_SOA_Autoupdate.psql 	Increase a zone's serial number on update for powerDNS
 *	swiss_dormant.pl 	Scrape the Swiss federal database for dormant accounts
+* runme.py. A Generic python popen with proper ordering of stdout and stderr
