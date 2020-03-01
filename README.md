@@ -12,3 +12,6 @@ You got the code , read it
 *	swiss_dormant.pl 	Scrape the Swiss federal database for dormant accounts
 * runme.py. A Generic python popen with proper ordering of stdout and stderr
 * revvy: A reverse ssh tunnel in 46 lines of scripts/configs
+
+
+Look for more complicated tools @ https://managenot.wordpress.com/
