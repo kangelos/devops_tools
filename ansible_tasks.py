@@ -60,7 +60,7 @@ def readconfig(inifile='/etc/kuyruk.ini', section='ansible_tasks'):
 
 # don't let these lines fool you, they do a lot of work
 try:
-    kuyruk = Kuyruk(readconfig("/etc/assimilate/kuyruk.ini", "ansible_tasks"))
+    kuyruk = Kuyruk(readconfig("/etc/kuyruk.ini", "ansible_tasks"))
 except:
     Logger.err("cannot initialize kuyruk")
     exit(1)
