@@ -12,6 +12,7 @@ I like ngrok, but I was sure I could do this without code, so here:
 
 ### client setup
 * copy revvyc to /usr/local/bin ( maybe) and run it
+* apt install nc/netcat
 
 It will try to maintain a port open on the server that get tunneled back to the client's SSH port (editable).
 
