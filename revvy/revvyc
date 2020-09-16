@@ -3,25 +3,14 @@
 # Angelos Karageorgiou angelos@unix.gr Feb 2 2020 :-)
 # Connect to the revvy server get your port
 # attach to ssh
-TOSSH=/usr/local/bin/tos.sh
 if ["$1" == ""]
 then
-  SERVER=192.168.1.105
+  SERVER=you backlink server
 else
   SERVER=$1
 fi
-
-(cat << EOF
-#!/bin/sh
-read line
-logger "\$line"
-nc 127.0.0.1 22 > /tmp/socket 2>&1
-EOF
-) > $TOSSH
-chmod +x $TOSSH
 /bin/rm -f /tmp/socket
 mkfifo /tmp/socket
-while [ 1 ]
-do
-  cat /tmp/socket |nc $SERVER 4443 2>&1 | $TOSSH
-done
+echo $(hostname) > /tmp/socket & # this will eventually exit
+cat /tmp/socket | nc $SERVER 4443 2>&1 | socat - TCP4:127.0.0.1:22 > /tmp/socket 2>&1
+

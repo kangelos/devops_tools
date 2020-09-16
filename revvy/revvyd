@@ -3,6 +3,6 @@
 # Angelos Karageorgiou angelos@unix.gr Feb 2 2020 :-)
 incoming=$RANDOM
 host=$(hostname)
-echo "REVVY: your tunnel is $host:$incoming, you could now do:'ssh \\-v \\-p $incoming $host'"
-# don't leave a shell hanging
-exec nc -l $incoming
+read hostname
+logger "REVVY: $hostname ssh -p $incoming pi@$host"
+exec /usr/bin/socat - TCP-LISTEN:$incoming 2>&1
