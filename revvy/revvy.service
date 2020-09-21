@@ -1,0 +1,12 @@
+[Unit]
+Description = Po admin's backlink
+After = network.target
+
+[Service]
+Type=simple
+ExecStart = /usr/local/bin/revvyc
+Restart=always
+User=root
+
+[Install]
+WantedBy = multi-user.target
