@@ -1,8 +1,8 @@
 #!/bin/bash
 # The  inredibly smart revvy server script
 # Angelos Karageorgiou angelos@unix.gr Feb 2 2020 :-)
-incoming=$RANDOM
-host=$(hostname)
-read hostname
-logger "REVVY: $hostname ssh -p $incoming $host"
-exec /usr/bin/socat - TCP-LISTEN:$incoming 2>&1
+read target mac
+port=$(echo $mac |awk -Wposix -F: '{printf("%d\n","0x" $5$6)}')
+logger "REVVY: for $target ssh -p $port -o stricthostkeychecking=no $(hostname)"
+nc -w 130 -p $port -l
+

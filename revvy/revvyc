@@ -3,14 +3,15 @@
 # Angelos Karageorgiou angelos@unix.gr Feb 2 2020 :-)
 # Connect to the revvy server get your port
 # attach to ssh
+FIFO=/tmp/revvy_backlink
 if ["$1" == ""]
 then
   SERVER=you backlink server
 else
   SERVER=$1
 fi
-/bin/rm -f /tmp/socket
-mkfifo /tmp/socket
-echo $(hostname) > /tmp/socket & # this will eventually exit
-cat /tmp/socket | nc $SERVER 4443 2>&1 | socat - TCP4:127.0.0.1:22 > /tmp/socket 2>&1
-
+/bin/rm -f $FIFO
+mkfifo $FIFO
+mac=$(ifconfig eth0  | grep ether | awk '{print $2}')
+echo "$(hostname) $mac" > $FIFO & # this will eventually exit. If you do not put it in the background it hangs
+socat TCP4:$SERVER:4443,keepalive - 0<$FIFO | socat - TCP4:127.0.0.1:22,keepalive > $FIFO
