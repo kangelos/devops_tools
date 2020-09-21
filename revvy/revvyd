@@ -4,5 +4,5 @@
 incoming=$RANDOM
 host=$(hostname)
 read hostname
-logger "REVVY: $hostname ssh -p $incoming pi@$host"
+logger "REVVY: $hostname ssh -p $incoming $host"
 exec /usr/bin/socat - TCP-LISTEN:$incoming 2>&1
