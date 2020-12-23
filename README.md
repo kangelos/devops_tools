@@ -14,6 +14,6 @@ You got the code , read it
 * runme.py. A Generic python popen with proper ordering of stdout and stderr
 * revvy: A reverse ssh tunnel in 46 lines of scripts/configs
 * impinjfirm.py: retrieve the firmware version of an impinj rfid reader
-* awsBySvcNAcct.py: Raw monthly AWS cost by service per account. Creates output very easy to chart
+
 
 Look for more complicated tools @ https://managenot.wordpress.com/
