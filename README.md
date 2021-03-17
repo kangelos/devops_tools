@@ -14,6 +14,7 @@ You got the code , read it
 * runme.py. A Generic python popen with proper ordering of stdout and stderr
 * revvy: A reverse ssh tunnel in 46 lines of scripts/configs
 * impinjfirm.py: retrieve the firmware version of an impinj rfid reader
+* joiner.py: convert multiline logs into digestible RS docs, ingest 500 at a time 
 
 
 Look for more complicated tools @ https://managenot.wordpress.com/
