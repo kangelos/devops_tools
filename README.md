@@ -15,6 +15,7 @@ You got the code , read it
 * revvy: A reverse ssh tunnel in 46 lines of scripts/configs
 * impinjfirm.py: retrieve the firmware version of an impinj rfid reader
 * joiner.py: convert multiline logs into digestible RS docs, ingest 500 at a time 
+* lambda_function.py Post aws SNS alerts and events to SLACK
 
 
 Look for more complicated tools @ https://managenot.wordpress.com/
