@@ -17,6 +17,7 @@ You got the code , read it
 * joiner.py: convert multiline logs into digestible RS docs, ingest 500 at a time 
 * lambda_function.py Post aws SNS alerts and events to SLACK
 * free_qr.py , a QR scanner for the Greek govnmt vaccination cert. Not a proper place for it , but I had to put it some place
+* kafkalag.sh Identify kafka lag issues
 
 
 Look for more complicated tools @ https://managenot.wordpress.com/
