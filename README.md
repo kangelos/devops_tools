@@ -20,4 +20,30 @@ You got the code , read it
 * kafkalag.sh Identify kafka lag issues
 
 
+# Importing user group membership into terraform
+
+It is an incredible pain to import manually crufted groups, users and memberships into terraform
+The basic idea is that you create the terraform manifest and then you import every entry as per the documentation
+
+basic assumptions
+* You have existing manisfests for users
+* You have existing manisfests for groups
+
+now the way to do the import is 
+  bash list_aws_user_groups.bash > groups.txt
+  python3 tf_user_group_membership.py > user_group_membership.tf
+
+  terraform plan 
+should now attempt to re-create all the group memberships for you. But fear not, the marvelous script creates your import command for you.
+  grep import user_group_membership.tf > toexecute
+  edit and remove the hashes
+  bash toexecute
+
+Wait and see
+
+
+
+Note:
+  If you have any errors like usersnames with periods, please hand edit the manifest
+
 Look for more complicated tools @ https://managenot.wordpress.com/
