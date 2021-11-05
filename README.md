@@ -18,6 +18,7 @@ You got the code , read it
 * lambda_function.py Post aws SNS alerts and events to SLACK
 * read_qr.py , a QR scanner for the Greek govnmt vaccination cert. Not a proper place for it , but I had to put it some place
 * kafkalag.sh Identify kafka lag issues
+* lambda_cloudtrail2elastic:  poh sre's cloudtrail ingestion to elasticsearch
 
 
 # Importing user group membership into terraform
