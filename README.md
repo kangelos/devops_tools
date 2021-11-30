@@ -19,6 +19,7 @@ You got the code , read it
 * read_qr.py , a QR scanner for the Greek govnmt vaccination cert. Not a proper place for it , but I had to put it some place
 * kafkalag.sh Identify kafka lag issues
 * lambda_cloudtrail2elastic:  poh sre's cloudtrail ingestion to elasticsearch
+* waf2elastic.py: Read AWS WAF logs from an S3 bucket and feed them in batches to an ELK cluster
 
 
 # Importing user group membership into terraform
