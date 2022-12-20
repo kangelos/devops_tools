@@ -20,6 +20,7 @@ You got the code , read it
 * kafkalag.sh Identify kafka lag issues
 * lambda_cloudtrail2elastic:  poh sre's cloudtrail ingestion to elasticsearch
 * waf2elastic.py: Read AWS WAF logs from an S3 bucket and feed them in batches to an ELK cluster
+* mqtt-panel: A fork of  Fabian Affolter' mqtt-panel, severely abused to make it work for Dingtian devices
 
 
 # Importing user group membership into terraform
@@ -46,6 +47,6 @@ Wait and see
 
 
 Note:
-  If you have any errors like usersnames with periods, please hand edit the manifest
+  If you have any errors like usernames with periods, please hand edit the manifest
 
 Look for more complicated tools @ https://managenot.wordpress.com/

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A web interface for MQTT over Websockets">
+    <meta name="author" content="Fabian Affolter">
+    <meta name="abuser" content="Angelos Karageorgiou">
+
+    <title>Remote Power Mgmt.</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.2/mqttws31.js"></script>
+
+    <script type="text/javascript" src="lib.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2">
+        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Remote Power Mgmt.</a>
+    </nav>
+    <div class="container-fluid">
+        <div id="status" class="alert">
+            <small>Loading...</small>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number1">
+            <center><h2>Power switch Serial #<span id="number1">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number1-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number1-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number1-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number1-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number1-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number1-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number1','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number1','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number1-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number1','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number1','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number1-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number1','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number1','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number1-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number1','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number1','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number2">
+      	    <center><h2>Power switch Serial #<span id="number2">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number2-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number2-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number2-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number2-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number2-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number2-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number2','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number2','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number2-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number2','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number2','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number2-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number2','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number2','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number2-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number2','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number2','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number3">
+       	    <center><h2>Power switch Serial #<span id="number3">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number3-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number3-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number3-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number3-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number3-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number3-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number3','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number3','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number3-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number3','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number3','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number3-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number3','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number3','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number3-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number3','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number3','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number4">
+            <center><h2>Power switch Serial #<span id="number4">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number4-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number4-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number4-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number4-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number4-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number4-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number4','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number4','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number4-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number4','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number4','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number4-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number4','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number4','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number4-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number4','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number4','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number5">
+            <center><h2>Power switch Serial #<span id="number5">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number5-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number5-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number5-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number5-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number5-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number5-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number5','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number5','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number5-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number5','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number5','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number5-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number5','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number5','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number5-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number5','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number5','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number6">
+            <center><h2>Power switch Serial #<span id="number6">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number6-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number6-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number6-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number6-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number6-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number6-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number6','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number6','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number6-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number6','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number6','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number6-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number6','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number6','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number6-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number6','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number6','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number7">
+            <center><h2>Power switch Serial #<span id="number7">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number7-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number7-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number7-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number7-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number7-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number7-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number7','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number7','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number7-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number7','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number7','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number7-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number7','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number7','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number7-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number7','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number7','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+       <div class="card mb-2" style="display:none" id="switch-number8">
+            <center><h2>Power switch Serial #<span id="number8">number</span></h2></center>
+            <div class="row">
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 1 </div>
+                        <span id="number8-label1" class="badge w-100">Waiting ...</span><br>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 2 </div>
+                        <span id="number8-label2" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 3 </div>
+                        <span id="number8-label3" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card-body">
+                        <div class="card-title"> Relay 4 </div>
+                        <span id="number8-label4" class="badge w-100">Waiting ...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5" id="number8-control-panel">
+            &nbsp;&nbsp;Control Panel
+                <table class="table table-bordered table-sm table-striped mt-1">
+                    <tbody>
+                        <tr>
+                            <th>R1</th>
+                            <td><small id="number8-value1">(no value received)</small></td>
+                            <td><button name="r1" value="ON" style="background-color:green;" onclick="toggle('number8','r1','ON');">Turn On</td>
+                            <td><button name="r1" value="OFF" style="background-color:red;"  onclick="toggle('number8','r1','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R2</th>
+                            <td><small id="number8-value2">(no value received)</small></td>
+                            <td><button name="r2" value="ON" style="background-color:green;" onclick="toggle('number8','r2','ON');">Turn On</td>
+                            <td><button name="r2" value="OFF" style="background-color:red;"  onclick="toggle('number8','r2','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R3</th>
+                            <td><small id="number8-value3">(no value received)</small></td>
+                            <td><button name="r3" value="ON" style="background-color:green;" onclick="toggle('number8','r3','ON');">Turn On</td>
+                            <td><button name="r3" value="OFF" style="background-color:red;"  onclick="toggle('number8','r3','OFF');">Turn Off</td>
+                        </tr>
+                        <tr>
+                            <th>R4</th>
+                            <td><small id="number8-value4">(no value received)</small></td>
+                            <td><button name="r4" value="ON" style="background-color:green;" onclick="toggle('number8','r4','ON')">Turn On</td>
+                            <td><button name="r4" value="OFF" style="background-color:red;"  onclick="toggle('number8','r4','OFF')">Turn Off</td>
+                        </tr>
+                    </tbody>
+                </table>
+	    </div>
+        </div>
+
+
+
+
+<div id="popup">
+    <div><center>Please login to access your Power Switches</center></div>
+    <div>&nbsp;</div>
+    Username:<input id="user" type="text" size=5/>
+    Password:<input id="pass" type="password" size=8/>
+        <button onclick="donepass()">Start</button></div>
+</div>
+
+<style>
+#popup {
+    width:480px;
+    height:150px;
+    padding:20px;
+    background-color:pink;
+    position:absolute;
+    top:140px;
+    left:140px;
+}
+</style>
+</body>
+</html>
