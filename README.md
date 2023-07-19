@@ -22,6 +22,7 @@ You got the code , read it
 * waf2elastic.py: Read AWS WAF logs from an S3 bucket and feed them in batches to an ELK cluster
 * mqtt-panel: A fork of  Fabian Affolter' mqtt-panel, severely abused to make it work for Dingtian devices
 * bridger.sh: Make developers' life easy on kuberbnetes. Use bridger and access pod IPs, service IPs and kube-dns entries from your laptop.
+* /chaosmonkey: A 1 1/2 bash script kubernetes chaosmonkey helm chart. No dependencies, not even for an image!
 
 
 # Importing user group membership into terraform

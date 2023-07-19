@@ -1,0 +1,23 @@
+# Default values for chaosmonkey.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+name: chaosmonkey
+
+image: debian:latest
+
+# kill a pod after so many seconds it has been alive
+killsecs: 500
+
+# the pod name regex that killer will kill
+killregex: "chaosmonkey"
+
+# skip these
+whitelistregex: "kafka\\|redis"
+
+# wake up every so often - randomly
+wakeupsecs: 31
+
+debug: true

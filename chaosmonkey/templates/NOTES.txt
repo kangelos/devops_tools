@@ -1,0 +1,5 @@
+---
+ChaosMonkey , viva la chaos
+
+
+Before installing this helm chert you have to do a: kubectl create serviceaccount {{ .Values.name }}

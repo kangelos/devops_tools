@@ -1,0 +1,11 @@
+apiVersion: v2
+name: chaosmonkey
+description: A Chaosmonkey Helm chart for Kubernetes
+
+maintainers: Angelos Karageorgiou angelos@unix.gr
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.0.0"

@@ -1,0 +1,75 @@
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+data:
+  initscript: |
+    #!/bin/bash
+    {{ if .Values.debug }}set -x{{ end }}
+    apt -yq update
+    apt -yq install curl bash jq
+    echo "Aisera Chaos Monkey starting"
+    echo "KILLCOUNT: $KILLCOUNT"
+    echo "KILLREGEX: $KILLREGEX"
+    echo "WHITELISTREGEX: $WHITELISTREGEX"
+    echo "KILLSECS: $KILLSECS"
+    while  [ 1 ] ;
+    do
+      tosleep=$(expr $RANDOM % {{ .Values.wakeupsecs }} )
+      echo "#Next run after $tosleep seconds"
+      sleep $tosleep
+      bash /killer.sh
+    done
+
+  killer: |
+    #!/bin/bash
+    {{ if .Values.debug }}set -x{{ end }}
+    # Point to the internal API server hostname
+    APISERVER=https://kubernetes.default.svc
+    # Path to ServiceAccount token
+    SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount
+    # Read this Pod's namespace
+    NAMESPACE=$(cat ${SERVICEACCOUNT}/namespace)
+    # Read the ServiceAccount bearer token
+    TOKEN=$(cat ${SERVICEACCOUNT}/token)  
+    # Reference the internal certificate authority (CA)
+    CACERT=${SERVICEACCOUNT}/ca.crt
+
+    # Explore the API with TOKEN
+    #curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${APISERVER}/api
+
+    # get all the pods in the namespace
+    echo "================================================================================================"
+    curl -s --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" \
+      -X GET ${APISERVER}/api/v1/namespaces/{{ .Release.Namespace}}/pods |\
+        jq -r  '.items[].metadata |[.name,.creationTimestamp] | join(" ")' > /tmp/pods.txt
+    cat /tmp/pods.txt | while read podname podstart
+    do
+      found=$(echo $podname | grep "$WHITELISTREGEX")
+      matchresult=$?
+      if [[ $matchresult -eq 0 ]]
+      then
+        {{ if .Values.debug }}echo "#Skipping whitelisted $podname"{{ end }}
+        continue
+      fi
+
+      start=$(date -d $podstart +'%s')
+      now=$(date +'%s')
+      secsup=$(($now-$start))
+
+      found=$(echo $podname | grep "$KILLREGEX")
+      matchresult=$?
+
+      if [[ $secsup -gt $KILLSECS ]] && [[ $matchresult -eq 0 ]]
+      then
+          echo "I should kill $podname"
+          {{ if .Values.debug }}echo \{{- end }}
+          curl -s --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" \
+            -X DELETE ${APISERVER}/api/v1/namespaces/{{ .Release.Namespace}}/pods/$podname
+      fi
+    done
+  

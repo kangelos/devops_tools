@@ -1,0 +1,47 @@
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app:  {{ .Values.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app:  {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app:  {{ .Values.name }}
+    spec:
+      containers:
+        - name:  {{ .Values.name }}
+          image:  {{ .Values.image }}
+          command:
+            - bash
+            - /initscript.sh
+          env:
+            - name: KILLSECS
+              value: "{{ .Values.killsecs }}"
+            - name: KILLREGEX
+              value: {{ .Values.killregex }}
+            - name: WHITELISTREGEX
+              value: {{ .Values.whitelistregex }}
+          volumeMounts:
+            - name: scripts
+              subPath: initscript
+              mountPath: /initscript.sh
+              readOnly: true
+            - name: scripts
+              subPath: killer
+              mountPath: /killer.sh
+              readOnly: true
+      serviceAccountName: {{ .Values.name }}
+      automountServiceAccountToken: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ .Values.name }}
+
