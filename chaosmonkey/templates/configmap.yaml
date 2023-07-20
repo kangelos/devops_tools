@@ -12,11 +12,13 @@ data:
     {{ if .Values.debug }}set -x{{ end }}
     apt -yq update
     apt -yq install curl bash jq
-    echo "Aisera Chaos Monkey starting"
+    echo "================================"
+    echo "Chaos Monkey starting"
     echo "KILLCOUNT: $KILLCOUNT"
     echo "KILLREGEX: $KILLREGEX"
     echo "WHITELISTREGEX: $WHITELISTREGEX"
     echo "KILLSECS: $KILLSECS"
+    echo "================================"
     while  [ 1 ] ;
     do
       tosleep=$(expr $RANDOM % {{ .Values.wakeupsecs }} )
