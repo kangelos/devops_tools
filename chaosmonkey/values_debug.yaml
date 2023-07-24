@@ -12,17 +12,15 @@ image: debian:latest
 prometheus: http://monitoring-prometheus.monitoring.svc:9090
 
 # kill a pod after so many seconds it has been alive
-# two weeks looks long enough
-# Only enable if desperate
+# One week looks long enough
 killbyage:
-  enabled: false
-  secs: 1209600
+  enabled: true
+  secs: 604800
 
 # kill a pod with a mem utilization above a threshold
-# be careful with lowering the threshold
 killbymem:
   enabled: true
-  threshold: .9
+  threshold: .2
   timewindow: 1800
   step: 300
 
@@ -33,23 +31,20 @@ killregex: ".*"
 
 
 # wake up every $RANDOM mod $wakeupsecs
-# Use a prime number to break synchronicity
-wakeupsecs: 257
+wakeupsecs: 67
 
 # wait so many secs after a kill to give the cluster time to stabilize
-# k8s has a 30s grace so our number must be greater than that !
-# Use a prime number to break synchronicity
-waitupsecs: 121
+waitupsecs: 120
 
 # if debug is enabled dry-run is implied
-debug: false
+debug: true
 # this is a set -x in the script
 debug_pedantic: false
 
 # skip these
-# double escape so helm passes it to bash
 whitelistregex: "kafka\\|redis\\|postgres\\|airflow"
 
 # show some interesting stuff
 log: true
+
 

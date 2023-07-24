@@ -16,6 +16,8 @@ spec:
       labels:
         app:  {{ .Values.name }}
     spec:
+      serviceAccountName: chaosmonkey
+      automountServiceAccountToken: true
       containers:
         - name:  {{ .Values.name }}
           image:  {{ .Values.image }}
@@ -23,12 +25,18 @@ spec:
             - bash
             - /initscript.sh
           env:
-            - name: KILLSECS
-              value: "{{ .Values.killsecs }}"
-            - name: KILLREGEX
+            - name: KILL_SECS
+              value: "{{ .Values.killbyage.secs }}"
+            - name: KILL_REGEX
               value: {{ .Values.killregex }}
-            - name: WHITELISTREGEX
+            - name: WHITELIST_REGEX
               value: {{ .Values.whitelistregex }}
+            - name: KILL_MEM_THRESHOLD
+              value: "{{ .Values.killbymem.threshold }}"
+            - name: KILL_TIME_WINDOW
+              value: "{{ .Values.killbymem.timewindow }}"
+            - name: KILL_TIME_STEP
+              value: "{{ .Values.killbymem.step }}"
           volumeMounts:
             - name: scripts
               subPath: initscript
@@ -38,8 +46,6 @@ spec:
               subPath: killer
               mountPath: /killer.sh
               readOnly: true
-      serviceAccountName: {{ .Values.name }}
-      automountServiceAccountToken: true
       volumes:
         - name: scripts
           configMap:

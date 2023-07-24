@@ -2,4 +2,12 @@
 ChaosMonkey , viva la chaos
 
 
-Before installing this helm chert you have to do a: kubectl create serviceaccount {{ .Values.name }}
+Before installing this helm chert you have to do a: 
+
+kubectl create serviceaccount {{ .Values.name }}
+
+For the life of me I could not embd that into yaml
+
+Prometheus query graciously provided by @elias
+max by (namespace, pod) (node_namespace_pod_container:container_memory_rss{namespace="$NAMESPACE",pod="$podname" }) / 
+max by (pod, namespace) (kube_pod_container_resource_limits{unit="byte",pod="$podname",namespace="$NAMESPACE"})

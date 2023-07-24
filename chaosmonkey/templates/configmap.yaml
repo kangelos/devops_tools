@@ -9,27 +9,41 @@ metadata:
 data:
   initscript: |
     #!/bin/bash
-    {{ if .Values.debug }}set -x{{ end }}
-    apt -yq update
-    apt -yq install curl bash jq
-    echo "================================"
-    echo "Chaos Monkey starting"
-    echo "KILLCOUNT: $KILLCOUNT"
-    echo "KILLREGEX: $KILLREGEX"
-    echo "WHITELISTREGEX: $WHITELISTREGEX"
-    echo "KILLSECS: $KILLSECS"
-    echo "================================"
-    while  [ 1 ] ;
-    do
-      tosleep=$(expr $RANDOM % {{ .Values.wakeupsecs }} )
-      echo "#Next run after $tosleep seconds"
-      sleep $tosleep
+    {{ if .Values.debug_pedantic }}set -x{{ end }}
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+    apt-get -yq update && apt-get -yq install curl jq
+
+    log(){
+      now=$(date +"%Y-%m-%dT%H:%M:%S%z")
+      echo "$now {{ .Values.name}} $*"
+    }
+
+    log "--------------------------------"
+    log "Chaos Monkey starting"
+    log "WHITELIST_REGEX:   $WHITELIST_REGEX"
+    log "KILL_REGEX:        $KILL_REGEX"
+    {{ if .Values.killbyage.enabled }}
+    log "Killing by Pod Age enabled"
+    log "KILL_SECS:         $KILL_SECS"
+    {{- end }}
+    {{ if .Values.killbymem.enabled }}
+    log "Killing by Memory threshold enabled"
+    log "KILL_MEM_THRESHOLD: $KILL_MEM_THRESHOLD"
+    log "KILL_TIME_WINDOW:   $KILL_TIME_WINDOW"
+    log "KILL_TIME_STEP:     $KILL_TIME_STEP"
+    {{- end }}
+    log "--------------------------------"
+    while  [ 1 ] ; do
+      log "Starting a run"
       bash /killer.sh
+      tosleep=$(($RANDOM % {{ .Values.wakeupsecs }} ))
+      log "Next run after $tosleep seconds"
+      sleep ${tosleep}
     done
 
   killer: |
     #!/bin/bash
-    {{ if .Values.debug }}set -x{{ end }}
+    {{ if .Values.debug_pedantic }}set -x{{ end }}
     # Point to the internal API server hostname
     APISERVER=https://kubernetes.default.svc
     # Path to ServiceAccount token
@@ -37,41 +51,112 @@ data:
     # Read this Pod's namespace
     NAMESPACE=$(cat ${SERVICEACCOUNT}/namespace)
     # Read the ServiceAccount bearer token
-    TOKEN=$(cat ${SERVICEACCOUNT}/token)  
+    TOKEN=$(cat ${SERVICEACCOUNT}/token)
     # Reference the internal certificate authority (CA)
     CACERT=${SERVICEACCOUNT}/ca.crt
+    # the local Prometheus URL
+    PROMETHEUS="{{ .Values.prometheus }}"
 
-    # Explore the API with TOKEN
-    #curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${APISERVER}/api
+    log(){
+      now=$(date +"%Y-%m-%dT%H:%M:%S%z")
+      echo "$now {{ .Values.name}} $*"
+    }
+
+    killpod (){
+          podname=$1
+          {{ if ne .Values.debug true}}
+          curl \
+            -s \
+            -o /tmp/delete.$podname \
+            --cacert ${CACERT} \
+            --header "Authorization: Bearer ${TOKEN}" \
+            -X DELETE ${APISERVER}/api/v1/namespaces/${NAMESPACE}/pods/$podname
+          deltime=$(cat /tmp/delete.$podname | jq -r '.metadata.deletionTimestamp' )
+          if [[ "$deltime" != "null" ]]
+          then
+            log "Pod: $podname deleted at $deltime"
+            log "I am exhausted, taking a nap for {{ .Values.waitupsecs }}s"
+            sleep {{ .Values.waitupsecs }}
+          else
+            log "ERROR: could not delete pod: $podname" 
+            log $(cat /tmp/delete.$podname)
+          fi
+          {{else}}
+          log "DEBUG: killpod $podname called"
+          {{ end }}
+    }
 
     # get all the pods in the namespace
-    echo "================================================================================================"
-    curl -s --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" \
-      -X GET ${APISERVER}/api/v1/namespaces/{{ .Release.Namespace}}/pods |\
-        jq -r  '.items[].metadata |[.name,.creationTimestamp] | join(" ")' > /tmp/pods.txt
+    # Leave them in a text file in case we need to debug this cruft
+    curl -s \
+      --cacert ${CACERT} \
+      --header "Authorization: Bearer ${TOKEN}" \
+      -X GET ${APISERVER}/api/v1/namespaces/${NAMESPACE}/pods \
+    |  jq -r  '.items[]|select(.status.phase=="Running")|.metadata|[.name,.creationTimestamp]|join(" ")' > /tmp/pods.txt
+
     cat /tmp/pods.txt | while read podname podstart
     do
-      found=$(echo $podname | grep "$WHITELISTREGEX")
+      #------------------------------------------------------------------------
+      # is the pod explicitly whitelisted ?
+      found=$(echo $podname | grep "$WHITELIST_REGEX")
       matchresult=$?
-      if [[ $matchresult -eq 0 ]]
-      then
-        {{ if .Values.debug }}echo "#Skipping whitelisted $podname"{{ end }}
+      if [[ $matchresult -eq 0 ]]; then
+        {{ if .Values.log }}log "Skipping whitelisted pod: $podname"{{ end }}
+        continue
+      fi
+      #------------------------------------------------------------------------
+      # does the pod not match the regex of the pods to be killed ?
+      found=$(echo $podname | grep "$KILL_REGEX")
+      matchresult=$?
+      if [[ $matchresult -ne 0 ]]; then
+        {{ if .Values.log }}log "Skipping non-blacklisted pod: $podname"{{ end }}
         continue
       fi
 
+      #------------------------------------------------------------------------
+      # has the pod's life extended over the time threshold?
+      {{ if .Values.killbyage.enabled }}
+      {{ if .Values.log }}log "Cheking lifetime of pod: $podname"{{ end }}
       start=$(date -d $podstart +'%s')
       now=$(date +'%s')
       secsup=$(($now-$start))
 
-      found=$(echo $podname | grep "$KILLREGEX")
-      matchresult=$?
-
-      if [[ $secsup -gt $KILLSECS ]] && [[ $matchresult -eq 0 ]]
-      then
-          echo "I should kill $podname"
-          {{ if .Values.debug }}echo \{{- end }}
-          curl -s --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" \
-            -X DELETE ${APISERVER}/api/v1/namespaces/{{ .Release.Namespace}}/pods/$podname
+      # handle numbers in scientific notatation
+      r=$(awk -v a="$secsup" -v b="$KILL_SECS" 'BEGIN{print (a>b)?1:0}')
+      if [[ $r -eq 1 ]]; then
+        log "POD:$podname life > $KILL_SECS, I should kill it"
+        killpod $podname
+        continue
       fi
+      {{ end }}#end if .Values.killbyage.enabled
+
+      #------------------------------------------------------------------------
+      # is the pod's memory utilization above the KILL_MEM_THRESHOLD ?
+      {{ if .Values.killbymem.enabled }}
+      {{ if .Values.log }}log "Cheking memory utilization of pod: $podname"{{ end }}
+      prometheus_query="((max by (namespace, pod) (node_namespace_pod_container:container_memory_rss{namespace=\"${NAMESPACE}\",pod=\"${podname}\"}) \
+          / max by (namespace,pod) (kube_pod_container_resource_limits{unit=\"byte\"}))>${KILL_MEM_THRESHOLD})"
+
+      html_query=$(echo $prometheus_query | jq -Rr @uri)
+
+      now=$(date +'%s')
+      start=$(($now-$KILL_TIME_WINDOW))
+      # -L to follow redirects, because prometheus
+      curl {{ if .Values.debug }}-v{{ end }} -s -L -o /tmp/over.$podname \
+          $PROMETHEUS/api/v1/query_range?query=${html_query}\&start=${start}\&end=${now}\&step=${KILL_TIME_STEP}
+      result=$(cat /tmp/over.$podname | jq -r .data.result)
+      {{ if .Values.debug }}
+      log "** over is '$(cat /tmp/over.$podname)', result is '$result'"
+      {{ end }}
+      # empty result set means no data i.e. not over KILL_MEM_THRESHOLD
+      # Non empty means we have valid data for usage > KILL_MEM_THRESHOLD
+      #    justifiable podicite
+      if [[ "$result" != "[]" ]]
+      then
+          log "POD: $podname memory utilization > ${KILL_MEM_THRESHOLD}, I should kill it"
+          killpod $podname
+          continue
+      fi
+      {{ end }}#end if .Values.killbymem.enabled
+      #------------------------------------------------------------------------
     done
-  
