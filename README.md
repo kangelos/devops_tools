@@ -5,8 +5,8 @@
 You got the code , read it
 
  
-*	ansible_tasks.py 	Batch ansible tasks remotely using rabbitmq as a queueing system
-* taskify.py. Conditaional decorator for kuyruk lib to allow imports INTO other modules
+* ansible_tasks.py: Batch ansible tasks remotely using rabbitmq as a queueing system
+* taskify.py: Conditaional decorator for kuyruk lib to allow imports INTO other modules
 *	sendfile.py 	Another batch send of small files to remote hosts behind forewalls using rabbitmq as a queueing system
 *	holdSundays.bash 	bash script to place a hold on ZFS snapshots on Sundays
 *	powerdns_SOA_Autoupdate.psql 	Increase a zone's serial number on update for powerDNS
@@ -23,6 +23,7 @@ You got the code , read it
 * mqtt-panel: A fork of  Fabian Affolter' mqtt-panel, severely abused to make it work for Dingtian devices
 * bridger.sh: Make developers' life easy on kuberbnetes. Use bridger and access pod IPs, service IPs and kube-dns entries from your laptop.
 * /chaosmonkey: A 1 1/2 bash script kubernetes chaosmonkey helm chart. No dependencies, not even for an image!
+* [onlyaws.sh]: Is your openvpn GW forcing all of your traffic through it but you only need it for AWS work ?
 
 
 # Importing user group membership into terraform
