@@ -24,7 +24,7 @@ You got the code , read it
 * [bridger](bridger.sh): Po'boys kuberbnetes VPN. Access pod IPs, service IPs and kube-dns entries from your laptop.
 * [chaosmonkey](chaosmonkey/): A 1 1/2 bash script kubernetes chaosmonkey helm chart. No dependencies, not even for an image!
 * [onlyaws](onlyaws.sh): Is your openvpn GW forcing all of your traffic through it but you only need it for AWS work ?
-* [s3replicate](s3replicate.py): AWS S3 CRR complete python code
+* [s3replicate](s3crr.py): AWS S3 CRR complete python code
   
 
 # Importing user group membership into terraform
