@@ -26,6 +26,7 @@ You got the code , read it
 * [onlyaws](onlyaws.sh): Is your openvpn GW forcing all of your traffic through it but you only need it for AWS work ?
 * [s3replicate](s3crr.py): AWS S3 CRR complete python code
 * [traefik_es_logs](traefik_es_logs.py) Python Script to export traefik logs from elasticsearch to an apache format file (the _message_ field)
+* [otterize to svg](ott2svg.sh) Bash script to convert otterize network mapper output to SVG maps via mermaid
   
 
 # Importing user group membership into terraform
