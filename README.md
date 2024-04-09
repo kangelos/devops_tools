@@ -2,7 +2,7 @@
 
 
 
-You got the code , read it
+You got the code , read it, but if you are too lazy , here are _some_ notes
 
  
 * [ansible_tasks](ansible_tasks.py): Batch ansible tasks remotely using rabbitmq as a queueing system.
@@ -16,7 +16,7 @@ You got the code , read it
 * [impinjfirm.py](impinjfirm.py): retrieve the firmware version of an impinj rfid reader.
 * [joiner](joiner.py): convert multiline logs into digestible RS docs, ingest 500 at a time.
 * [λ-alerts](lambda_function.py): Post aws SNS alerts and events to SLACK.
-* [QR](read_qr.py) , a QR scanner for the Greek govnmt vaccination cert. Not a proper place for it , but I had to put it some place.
+* [QR](read_qr.py), a QR scanner for the Greek govnmt vaccination cert. Not a proper place for it , but I had to put it some place.
 * [kafkalag](kafkalag.sh): Drill down and Identify kafka lag issues.
 * [λ-cloudtrail2elastic](lambda_cloudtrail2elastic):  poh sre's serverless cloudtrail ingestion to elasticsearch .
 * [waf2elastic](waf2elastic.py): Read AWS WAF logs from an S3 bucket and feed them in batches to an ELK cluster.
