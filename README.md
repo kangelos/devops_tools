@@ -27,8 +27,8 @@ You got the code , read it, but if you are too lazy , here are _some_ notes
 * [s3replicate](s3crr.py): AWS S3 CRR complete python code
 * [traefik_es_logs](traefik_es_logs.py) Python Script to export traefik logs from elasticsearch to an apache format file (the _message_ field)
 * [otterize to svg](ott2svg.sh) Bash script to convert otterize network mapper output to SVG maps via mermaid
-  
-
+* [ingestor](ingestor.json) Elastic search ingest pipeline for converting traefik logs to Common Log format. Includes GeoLocation points.
+* [reindexer](ingest_an_index.sh) Bash script to drive the traefik ingestion pipeline
 # Importing user group membership into terraform
 
 
