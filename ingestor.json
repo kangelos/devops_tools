@@ -1,0 +1,50 @@
+{
+  "traefik-ingestor": {
+    "description": "to postprocess the traefik.message field",
+    "processors": [
+      {
+        "grok": {
+          "field": "message",
+          "patterns": [
+            "%{IPV4:ip.one}, %{IPV4:ip.two}, %{IPV4:ip.three} %{USER:user.id} %{USER:user.name} \\[%{HTTPDATE:@timestamp}\\] \"%{WORD:http.request.method} %{DATA:url.original} HTTP/%{NUMBER:http.version}\" %{NUMBER:http.response.status_code:int} (?:-|%{NUMBER:http.response.body.bytes:int}) \"http[s]://%{HOSTNAME:http.request.referrer.host}/%{DATA:http.request.referrer.url}\" %{QS:user_agent} %{NUMBER:traefik.request.num_received:int} %{QS:traefik.frontend} %{QS:traefik.backend} %{NUMBER:traefik.request.duration:int}ms"
+          ]
+        }
+      },
+      {
+        "grok": {
+          "field": "message",
+          "patterns": [
+            "%{IPV4:ip.one}, %{IPV4:ip.two}, %{IPV4:ip.three}, %{IPV4:ip.four} %{USER:user.id} %{USER:user.name} \\[%{HTTPDATE:@timestamp}\\] \"%{WORD:http.request.method} %{DATA:url.original} HTTP/%{NUMBER:http.version}\" %{NUMBER:http.response.status_code:int} (?:-|%{NUMBER:http.response.body.bytes:int}) \"http[s]://%{HOSTNAME:http.request.referrer.host}/%{DATA:http.request.referrer.url}\" %{QS:user_agent} %{NUMBER:traefik.request.num_received:int} %{QS:traefik.frontend} %{QS:traefik.backend} %{NUMBER:traefik.request.duration:int}ms"
+          ]
+        }
+      },
+      {
+        "date": {
+          "field": "@timestamp",
+          "formats": [
+            "dd/MMM/yyyy:HH:mm:ss Z"
+          ],
+          "target_field": "http-timestamp"
+        }
+      },
+      {
+        "convert": {
+          "field": "ip.one",
+          "type": "ip",
+          "target_field": "ipaddress"
+        }
+      },
+      {
+        "geoip": {
+          "field": "ipaddress",
+          "target_field": "geolocation"
+        }
+      }
+    ],
+    "on_failure": [
+      {
+        "drop": {}
+      }
+    ]
+  }
+}
